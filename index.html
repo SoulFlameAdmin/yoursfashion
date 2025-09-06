@@ -14,28 +14,29 @@
     width: 100%; height: 100%;
     display: grid; place-items: center;
     padding: 6vh 4vw;
-    perspective: 1200px; /* нужна е перспектива за 3D ефекта */
+    /* перспектива за частиците; логото НЕ се пипа */
+    perspective: 1200px;
   }
-  .logo { width: min(92vw, 1100px); height: auto; display:block; transition: transform 3s ease; }
+  .logo { width: min(92vw, 1100px); height: auto; display:block; }
 
   /* ===== ТЪНКО И БЪРЗО КАЛИГРАФСКО ИЗПИСВАНЕ (4s) ===== */
 
   #logo-stroke {
     fill: none;
     stroke: #ffffff;
-    stroke-width: 1.4;
+    stroke-width: 1.4;                 /* по-тънко */
     stroke-linecap: round;
     stroke-linejoin: round;
     stroke-dasharray: 2000;
     stroke-dashoffset: 2000;
-    animation: draw 4s ease-out forwards 0ms;
+    animation: draw 4s ease-out forwards 0ms;  /* рисуване 4s */
     filter: drop-shadow(0 0 4px rgba(255,255,255,.22));
   }
 
   #logo-fill {
     fill: url(#brandGradient);
     opacity: 0;
-    animation: fillin 4s ease-out forwards 0ms;
+    animation: fillin 4s ease-out forwards 0ms; /* оцветяване също 4s, едновременно */
     mix-blend-mode: screen;
     filter: drop-shadow(0 6px 18px rgba(49,255,166,.12))
             drop-shadow(0 10px 28px rgba(32,110,255,.12));
@@ -44,24 +45,18 @@
   .swash {
     fill: none;
     stroke: url(#brandGradient);
-    stroke-width: 1.3;
+    stroke-width: 1.3;                 /* фино */
     stroke-linecap: round;
     opacity: 0;
     stroke-dasharray: 1400;
     stroke-dashoffset: 1400;
-    animation: swash 4s ease-out forwards 0ms;
+    animation: swash 4s ease-out forwards 0ms; /* линията също 4s */
     filter: drop-shadow(0 0 6px rgba(255,50,74,.2));
   }
 
   @keyframes draw   { to { stroke-dashoffset: 0; } }
   @keyframes fillin { 0% {opacity: 0} 30% {opacity:.35} 70% {opacity:.9} 100% {opacity:1} }
   @keyframes swash  { 0% {stroke-dashoffset:1400; opacity:0} 15%{opacity:.45} 100% {stroke-dashoffset:0; opacity:.95} }
-
-  /* Клас за „отлитане назад“ */
-  .fly-back {
-    transform: translateZ(-400px) scale(0.7); /* леко назад и намаляване */
-    opacity: 0.7;
-  }
 
   .skip {
     position: fixed; right: 16px; bottom: 16px; z-index: 2;
@@ -102,15 +97,15 @@
     </defs>
 
     <!-- Stroke -->
-    <text id="logo-stroke" class="brand" x="50%" y="40%">Your</text>
-    <text id="logo-stroke" class="brand-small italicish" x="50%" y="78%">Fashion</text>
+    <text id="tYour"   id="logo-stroke" class="brand" x="50%" y="40%">Your</text>
+    <text id="tFashS"  id="logo-stroke" class="brand-small italicish" x="50%" y="78%">Fashion</text>
 
     <!-- Fill -->
-    <text id="logo-fill" class="brand" x="50%" y="40%">Your</text>
-    <text id="logo-fill" class="brand-small italicish" x="50%" y="78%">Fashion</text>
+    <text id="fYour"   id="logo-fill" class="brand" x="50%" y="40%">Your</text>
+    <text id="fFashS"  id="logo-fill" class="brand-small italicish" x="50%" y="78%">Fashion</text>
 
     <!-- Подчертаване -->
-    <path class="swash"
+    <path id="pSwash" class="swash"
           d="M 320 600
              C 520 650, 880 650, 1060 585
              S 1280 500, 1200 470"
@@ -121,7 +116,7 @@
 <button class="skip" aria-label="Пропусни интрото" onclick="window.location.href='page1.html'">Пропусни →</button>
 
 <script>
-/* ===== Космически фойерверки ===== */
+/* ===== Космически фойерверк, който избухва ОТ БУКВИТЕ във ВСИЧКИ ПОСОКИ ===== */
 (() => {
   const canvas = document.querySelector('.fireworks');
   const ctx = canvas.getContext('2d');
@@ -129,40 +124,51 @@
   const particles = [];
   const colors = ['#FF324A','#31FFA6','#206EFF','#A1A1FF','#FFFFFF'];
 
-  let cw, ch, cx, cy;
   function resize() {
-    cw = canvas.width  = innerWidth * DPR;
-    ch = canvas.height = innerHeight * DPR;
+    canvas.width  = innerWidth * DPR;
+    canvas.height = innerHeight * DPR;
     canvas.style.width  = innerWidth + 'px';
     canvas.style.height = innerHeight + 'px';
     ctx.setTransform(DPR,0,0,DPR,0,0);
-    cx = cw / (2*DPR);
-    cy = ch / (2*DPR);
   }
   resize();
   addEventListener('resize', resize);
 
-  function makeParticle(x, y){
-    const angle = Math.random() * Math.PI * 2;
-    const speed = 1.2 + Math.random()*2.8;
-    const z = -0.6 + Math.random()*1.2;
-    const towardsCamera = (Math.random() < 0.35) ? (0.015 + Math.random()*0.03) : 0.0;
+  // равномерно случайно направление по сферата (3D)
+  function randomUnitVec3(){
+    const u = Math.random()*2 - 1;          // cos(phi) in [-1,1]
+    const theta = Math.random()*Math.PI*2;  // angle in [0,2pi)
+    const s = Math.sqrt(1 - u*u);
+    return { x: s*Math.cos(theta), y: s*Math.sin(theta), z: u };
+  }
+
+  // една частица с 3D дълбочина
+  function makeParticle(x, y, baseSpeed=3.1){
+    const dir = randomUnitVec3(); // посока във всички измерения
+    const spd = baseSpeed * (0.7 + Math.random()*0.8); // малко разнообразие
     return {
       x, y,
-      vx: Math.cos(angle)*speed,
-      vy: Math.sin(angle)*speed,
-      z,
-      vz: towardsCamera,
+      vx: dir.x * spd,
+      vy: dir.y * spd,
+      z: 0,                       // старт на „плоскостта“ на буквите
+      vz: dir.z * 0.04,           // към/от камерата
       r: 1 + Math.random()*2.2,
-      dr: 0.04 + Math.random()*0.08,
-      life: 80 + Math.random()*50,
+      dr: 0.03 + Math.random()*0.06,
+      life: 90 + Math.random()*60,
       color: colors[(Math.random()*colors.length)|0],
-      alpha: 0.95,
+      alpha: 0.95
     };
   }
 
-  function spawnBurst(x, y, count = 200){
-    for(let i=0;i<count;i++) particles.push(makeParticle(x, y));
+  // взрив от множество точки вътре в даден DOMRect
+  function burstFromRect(rect, count=200){
+    // координати в CSS пиксели
+    const left = rect.left, top = rect.top, w = rect.width, h = rect.height;
+    for(let i=0;i<count;i++){
+      const x = left + Math.random()*w;
+      const y = top  + Math.random()*h;
+      particles.push(makeParticle(x, y));
+    }
   }
 
   function step(){
@@ -171,18 +177,23 @@
 
     for(let i=particles.length-1;i>=0;i--){
       const p = particles[i];
+
+      // 3D дълбочина
       p.z += p.vz;
-      const depthScale = 1 + (p.z * 0.9);
+      const depthScale = 1 + (p.z * 1.0); // към камерата -> по-големи
       const s = Math.max(0.35, depthScale);
 
-      p.vy += 0.02;
-      p.vx *= 0.992; p.vy *= 0.992;
+      // лека физика
+      p.vx *= 0.994; p.vy *= 0.994; // съпротивление
       p.x += p.vx; p.y += p.vy;
-      p.r += p.dr + (p.vz*6);
-      p.life--; p.alpha = Math.max(0, p.life/100);
 
+      // растеж на „балоните“
+      p.r += p.dr + (p.vz*5);
+      p.life--; p.alpha = Math.max(0, p.life/110);
+
+      // рисуване
       const rr = Math.max(0.5, p.r * s);
-      const grd = ctx.createRadialGradient(p.x, p.y, rr*0.2, p.x, p.y, rr);
+      const grd = ctx.createRadialGradient(p.x, p.y, rr*0.15, p.x, p.y, rr);
       grd.addColorStop(0,   p.color + 'EE');
       grd.addColorStop(0.6, p.color + '66');
       grd.addColorStop(1,   '#00000000');
@@ -202,12 +213,30 @@
   }
   step();
 
-  // ГОЛЯМ взрив на 5-та секунда
-  setTimeout(() => {
-    spawnBurst(cx, cy, 320);
+  // Клик: локални сферични мини-взривове върху буквите
+  addEventListener('pointerdown', e => {
+    // около мястото на клика
+    const rect = { left: e.clientX-10, top: e.clientY-10, width: 20, height: 20 };
+    burstFromRect(rect, 100);
+  });
 
-    // добавяме ефект "fly-back" към логото
-    document.getElementById('logoSVG').classList.add('fly-back');
+  // На 5-та секунда: ГОЛЯМ взрив, който излиза от буквите във всички посоки
+  setTimeout(() => {
+    const svg   = document.getElementById('logoSVG');
+    const tYour = document.getElementById('tYour');
+    const tFash = document.getElementById('tFashS');
+    const swash = document.getElementById('pSwash');
+
+    // взимаме екрани координати на отделните елементи
+    const r1 = tYour.getBoundingClientRect();
+    const r2 = tFash.getBoundingClientRect();
+    const r3 = swash.getBoundingClientRect();
+
+    // по-голям брой частици от самите букви
+    burstFromRect(r1, 280);
+    burstFromRect(r2, 340);
+    // малко и от линията за красота
+    burstFromRect(r3, 160);
   }, 5000);
 })();
 
