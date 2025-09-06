@@ -17,17 +17,17 @@
   }
   .logo { width: min(92vw, 1100px); height: auto; display:block; }
 
-  /* Ръкописен стил: по-тънък контур и плавно запълване */
+  /* По-тънък контур */
   #logo-stroke {
     fill: none;
     stroke: #ffffff;
-    stroke-width: 5;
+    stroke-width: 2.8; /* преди беше 5 */
     stroke-linecap: round;
     stroke-linejoin: round;
     stroke-dasharray: 2000;
     stroke-dashoffset: 2000;
     animation: draw 2.2s ease-out forwards 250ms;
-    filter: drop-shadow(0 0 8px rgba(255,255,255,.25));
+    filter: drop-shadow(0 0 6px rgba(255,255,255,.2));
   }
   #logo-fill {
     fill: url(#brandGradient);
@@ -38,24 +38,22 @@
             drop-shadow(0 10px 28px rgba(32,110,255,.12));
   }
 
-  /* Подпис подчертаване */
   .swash {
     fill: none;
     stroke: url(#brandGradient);
-    stroke-width: 4;
+    stroke-width: 2.2; /* по-тънко подчертаване */
     stroke-linecap: round;
     opacity: 0;
     stroke-dasharray: 1200;
     stroke-dashoffset: 1200;
     animation: swash 1.1s ease-out forwards 2100ms;
-    filter: drop-shadow(0 0 10px rgba(255,50,74,.25));
+    filter: drop-shadow(0 0 8px rgba(255,50,74,.25));
   }
 
   @keyframes draw   { to { stroke-dashoffset: 0; } }
   @keyframes fillin { to { opacity: 1; } }
   @keyframes swash  { to { stroke-dashoffset: 0; opacity: .95; } }
 
-  /* Малък „skip“ за UX (по желание може да го махнеш) */
   .skip {
     position: fixed; right: 16px; bottom: 16px; z-index: 2;
     border: 1px solid rgba(255,255,255,.25);
@@ -74,26 +72,19 @@
 <div class="wrap">
   <svg class="logo" viewBox="0 0 1400 700" role="img" aria-label="Your Fashion">
     <defs>
-      <!-- Красиви ръкописни шрифтове -->
       <style>
         @import url('https://fonts.googleapis.com/css2?family=Great+Vibes&family=Dancing+Script:wght@700&display=swap');
-        /* Основен „подпис“ стил */
         .brand {
           font: 700 200px/1 'Great Vibes', 'Dancing Script', cursive;
           text-anchor: middle;
-          letter-spacing: .5px;
         }
-        /* Долният ред – малко по-малък и с лек наклон */
         .brand-small {
           font: 700 170px/1 'Great Vibes', 'Dancing Script', cursive;
           text-anchor: middle;
-          letter-spacing: .6px;
         }
-        /* Фина перспектива чрез SVG transform */
         .italicish { transform: skewX(-3deg); }
       </style>
 
-      <!-- Градиент за запълване -->
       <linearGradient id="brandGradient" x1="0%" y1="0%" x2="100%" y2="0%">
         <stop offset="0%"   stop-color="#31FFA6"/>
         <stop offset="50%"  stop-color="#206EFF"/>
@@ -101,15 +92,15 @@
       </linearGradient>
     </defs>
 
-    <!-- Контур (stroke) -->
+    <!-- Stroke -->
     <text id="logo-stroke" class="brand" x="50%" y="40%">Your</text>
     <text id="logo-stroke" class="brand-small italicish" x="50%" y="78%">Fashion</text>
 
-    <!-- Запълване (fill) -->
+    <!-- Fill -->
     <text id="logo-fill" class="brand" x="50%" y="40%">Your</text>
     <text id="logo-fill" class="brand-small italicish" x="50%" y="78%">Fashion</text>
 
-    <!-- Калиграфски „swash“ подчертаване под Fashion -->
+    <!-- Подчертаване -->
     <path class="swash"
           d="M 340 600
              C 520 640, 880 640, 1040 585
@@ -178,7 +169,6 @@
     spawnBurst(e.clientX, e.clientY);
   });
 
-  // авто-бум след рисуване
   setTimeout(() => {
     spawnBurst(innerWidth/2, innerHeight/2 - 90);
     spawnBurst(innerWidth/2 - 220, innerHeight/2 + 80);
@@ -186,11 +176,10 @@
   }, 2100);
 })();
 
-/* ===== Авто-прехвърляне след 3 сек ===== */
+/* ===== Авто-прехвърляне след 5 сек ===== */
 setTimeout(() => {
-  // href -> при Refresh винаги стартира от index.html
   window.location.href = "page1.html";
-}, 3000);
+}, 5000);
 </script>
 </body>
 </html>
