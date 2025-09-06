@@ -18,24 +18,24 @@
   }
   .logo { width: min(92vw, 1100px); height: auto; display:block; }
 
-  /* ===== ТЪНЪК, БЯЛ КОНТУР + ЕДНОВРЕМЕННО ЗАПЪЛВАНЕ (4s) ===== */
+  /* ===== ТЪНЪК БЯЛ КОНТУР, РИСУВАН ТОЧНО ВЪРХУ БУКВИТЕ (4s) ===== */
 
   .logo-stroke {
     fill: none;
-    stroke: #ffffff;          /* бяло рисуване */
-    stroke-width: 1.3;        /* тънко */
+    stroke: #ffffff;        /* БЯЛО */
+    stroke-width: 1.3;      /* тънко */
     stroke-linecap: round;
     stroke-linejoin: round;
     stroke-dasharray: 2000;
     stroke-dashoffset: 2000;
-    animation: draw 4s ease-out forwards 0ms;  /* рисуване 4s */
+    animation: draw 4s ease-out forwards 0ms; /* рисуване 4s */
     filter: drop-shadow(0 0 4px rgba(255,255,255,.22));
   }
 
   .logo-fill {
     fill: url(#brandGradient);
     opacity: 0;
-    animation: fillin 4s ease-out forwards 0ms; /* оцветяване 4s, едновременно */
+    animation: fillin 4s ease-out forwards 0ms; /* едновременно 4s */
     mix-blend-mode: screen;
     filter: drop-shadow(0 6px 18px rgba(49,255,166,.12))
             drop-shadow(0 10px 28px rgba(32,110,255,.12));
@@ -49,7 +49,7 @@
     opacity: 0;
     stroke-dasharray: 1400;
     stroke-dashoffset: 1400;
-    animation: swash 4s ease-out forwards 0ms;  /* линията също 4s */
+    animation: swash 4s ease-out forwards 0ms; /* 4s */
     filter: drop-shadow(0 0 6px rgba(255,50,74,.2));
   }
 
@@ -80,7 +80,7 @@
         .brand { font: 700 200px/1 'Great Vibes', 'Dancing Script', cursive; text-anchor: middle; }
         .brand-small { font: 700 170px/1 'Great Vibes', 'Dancing Script', cursive; text-anchor: middle; }
         .italicish { transform: skewX(-3deg); }
-        .glyph { pointer-events: none; } /* отделни букви за взривове */
+        .glyph { pointer-events: none; }
       </style>
       <linearGradient id="brandGradient" x1="0%" y1="0%" x2="100%" y2="0%">
         <stop offset="0%"   stop-color="#31FFA6"/>
@@ -89,22 +89,29 @@
       </linearGradient>
     </defs>
 
-    <!-- Stroke (контур) – разделено по букви с <tspan> -->
-    <text class="brand logo-stroke" x="50%" y="40%" aria-hidden="true">
-      <tspan class="glyph" id="gY">Y</tspan><tspan class="glyph" id="gO">o</tspan>
-      <tspan class="glyph" id="gU">u</tspan><tspan class="glyph" id="gR">r</tspan>
+    <!-- ЛЕЙЪР 1: FILL (разделено по букви за 1:1 съвпадение с контура) -->
+    <text class="brand logo-fill" x="50%" y="40%">
+      <tspan class="glyph" id="fY">Y</tspan><tspan class="glyph" id="fO">o</tspan>
+      <tspan class="glyph" id="fU">u</tspan><tspan class="glyph" id="fR">r</tspan>
+    </text>
+    <text class="brand-small italicish logo-fill" x="50%" y="78%">
+      <tspan class="glyph" id="fF">F</tspan><tspan class="glyph" id="fA">a</tspan>
+      <tspan class="glyph" id="fS">s</tspan><tspan class="glyph" id="fH">h</tspan>
+      <tspan class="glyph" id="fI">i</tspan><tspan class="glyph" id="fO2">o</tspan>
+      <tspan class="glyph" id="fN">n</tspan>
     </text>
 
-    <text class="brand-small italicish logo-stroke" x="50%" y="78%" aria-hidden="true">
-      <tspan class="glyph" id="gF">F</tspan><tspan class="glyph" id="gA">a</tspan>
-      <tspan class="glyph" id="gS">s</tspan><tspan class="glyph" id="gH">h</tspan>
-      <tspan class="glyph" id="gI">i</tspan><tspan class="glyph" id="gO2">o</tspan>
-      <tspan class="glyph" id="gN">n</tspan>
+    <!-- ЛЕЙЪР 2: STROKE (абсолютно същите tspans – перфектно покритие) -->
+    <text class="brand logo-stroke" x="50%" y="40%">
+      <tspan class="glyph" id="sY">Y</tspan><tspan class="glyph" id="sO">o</tspan>
+      <tspan class="glyph" id="sU">u</tspan><tspan class="glyph" id="sR">r</tspan>
     </text>
-
-    <!-- Fill (запълване) – цели думи за чист градиент -->
-    <text class="brand logo-fill" x="50%" y="40%">Your</text>
-    <text class="brand-small italicish logo-fill" x="50%" y="78%">Fashion</text>
+    <text class="brand-small italicish logo-stroke" x="50%" y="78%">
+      <tspan class="glyph" id="sF">F</tspan><tspan class="glyph" id="sA">a</tspan>
+      <tspan class="glyph" id="sS">s</tspan><tspan class="glyph" id="sH">h</tspan>
+      <tspan class="glyph" id="sI">i</tspan><tspan class="glyph" id="sO2">o</tspan>
+      <tspan class="glyph" id="sN">n</tspan>
+    </text>
 
     <!-- Подчертаване -->
     <path class="swash" id="swash"
@@ -117,7 +124,7 @@
 <button class="skip" aria-label="Пропусни интрото" onclick="window.location.href='page1.html'">Пропусни →</button>
 
 <script>
-/* ===== МИКРОВЗРИВОВЕ ОТ ВСЯКА БУКВА – сферично, 3D, от малко към голямо ===== */
+/* ===== МИКРОВЗРИВОВЕ ОТ ВСЯКА БУКВА — ТОЧНО ВЪРХУ ТЯХ ===== */
 (() => {
   const canvas = document.querySelector('.fireworks');
   const ctx = canvas.getContext('2d');
@@ -137,13 +144,13 @@
 
   // равномерно случайно направление по сфера (3D)
   function randomUnitVec3(){
-    const u = Math.random()*2 - 1;          // cos(phi) ∈ [-1,1]
-    const t = Math.random()*Math.PI*2;      // theta ∈ [0,2pi)
+    const u = Math.random()*2 - 1;
+    const t = Math.random()*Math.PI*2;
     const s = Math.sqrt(1 - u*u);
     return { x: s*Math.cos(t), y: s*Math.sin(t), z: u };
   }
 
-  // частица: започва МАЛКА, расте (балон), лети в 3D (вкл. към/от екрана)
+  // малка частица, растяща във времето (от малко към голямо), 3D движение
   function makeParticle(x, y, baseSpeed=2.8){
     const dir = randomUnitVec3();
     const spd = baseSpeed * (0.75 + Math.random()*0.8);
@@ -152,22 +159,21 @@
       vx: dir.x * spd,
       vy: dir.y * spd,
       z: 0,
-      vz: dir.z * 0.05,               // към/от камерата
-      r: 0.6 + Math.random()*0.9,     // МАЛЪК старт
-      dr: 0.06 + Math.random()*0.1,   // растеж -> „от малко към голямо“
+      vz: dir.z * 0.05,
+      r: 0.6 + Math.random()*0.9,     // старт малък
+      dr: 0.06 + Math.random()*0.1,   // растеж
       life: 80 + Math.random()*60,
       color: colors[(Math.random()*colors.length)|0],
       alpha: 0.98
     };
   }
 
-  // микровзрив от едно правоъгълниче (буква): много малки изстрели
-  function microBurstFromRect(rect, bursts=4, perBurst=28, jitter=180){
-    // правим няколко „вълни“ за по-жив ефект
-    for(let b=0; b<bursts; b++){
-      const delay = Math.random()*jitter + b*(jitter*0.35);
+  // микровзрив от Rect (буква): няколко вълни за жив ефект
+  function microBurstFromRect(rect, waves=4, perWave=28, jitter=180){
+    for(let w=0; w<waves; w++){
+      const delay = Math.random()*jitter + w*(jitter*0.35);
       setTimeout(() => {
-        for(let i=0;i<perBurst;i++){
+        for(let i=0;i<perWave;i++){
           const x = rect.left + Math.random()*rect.width;
           const y = rect.top  + Math.random()*rect.height;
           particles.push(makeParticle(x, y));
@@ -196,7 +202,7 @@
       p.r += p.dr + (p.vz*4.5);
       p.life--; p.alpha = Math.max(0, p.life/110);
 
-      // рисуване „балон“
+      // рисуване
       const rr = Math.max(0.45, p.r * s);
       const grd = ctx.createRadialGradient(p.x, p.y, rr*0.12, p.x, p.y, rr);
       grd.addColorStop(0,   p.color + 'EE');
@@ -218,20 +224,20 @@
   }
   step();
 
-  // Клик: мини-взрив върху мястото на клика (по желание)
+  // Клик: мини-взрив при курсора
   addEventListener('pointerdown', e => {
     microBurstFromRect({ left: e.clientX-10, top: e.clientY-10, width: 20, height: 20 }, 2, 24, 100);
   });
 
-  // На 5-тата секунда: МНОГО малки взривове ОТ ВСЯКА БУКВА
+  // На 5-та секунда: микровзривове ТОЧНО от всяка буква (stroke/fill слоевете са идентични)
   setTimeout(() => {
     const glyphs = document.querySelectorAll('.glyph');
     glyphs.forEach(g => {
       const r = g.getBoundingClientRect();
-      microBurstFromRect(r, 5, 26, 140); // (вълни, частици/вълна, джитър)
+      microBurstFromRect(r, 5, 26, 140);
     });
 
-    // и малко от подчертаващата линия за баланс
+    // и малко от подчертаващата линия
     const sw = document.getElementById('swash').getBoundingClientRect();
     microBurstFromRect(sw, 4, 22, 160);
   }, 5000);
