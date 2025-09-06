@@ -17,42 +17,39 @@
   }
   .logo { width: min(92vw, 1100px); height: auto; display:block; }
 
-  /* ===== ТЪНЪК КОНТУР + ЕДНОВРЕМЕННИ АНИМАЦИИ (5s) ===== */
+  /* ===== ТЪНКО И БЪРЗО КАЛИГРАФСКО ИЗПИСВАНЕ (4s) ===== */
 
-  /* по-тънко рисуване */
   #logo-stroke {
     fill: none;
     stroke: #ffffff;
-    stroke-width: 1.8;              /* по-тънко */
+    stroke-width: 1.4;                 /* по-тънко */
     stroke-linecap: round;
     stroke-linejoin: round;
     stroke-dasharray: 2000;
     stroke-dashoffset: 2000;
-    animation: draw 5s ease-out forwards 0ms;   /* рисуване 5s */
-    filter: drop-shadow(0 0 4px rgba(255,255,255,.2));
+    animation: draw 4s ease-out forwards 0ms;  /* рисуване 4s */
+    filter: drop-shadow(0 0 4px rgba(255,255,255,.22));
   }
 
-  /* запълване – едновременно за 5s */
   #logo-fill {
     fill: url(#brandGradient);
     opacity: 0;
-    animation: fillin 5s ease-out forwards 0ms; /* 5s fill */
+    animation: fillin 4s ease-out forwards 0ms; /* оцветяване също 4s, едновременно */
     mix-blend-mode: screen;
     filter: drop-shadow(0 6px 18px rgba(49,255,166,.12))
             drop-shadow(0 10px 28px rgba(32,110,255,.12));
   }
 
-  /* долната линия – също 5s */
   .swash {
     fill: none;
     stroke: url(#brandGradient);
-    stroke-width: 1.6;              /* по-тънко */
+    stroke-width: 1.3;                 /* още по-фино */
     stroke-linecap: round;
     opacity: 0;
     stroke-dasharray: 1400;
     stroke-dashoffset: 1400;
-    animation: swash 5s ease-out forwards 0ms;  /* 5s линия */
-    filter: drop-shadow(0 0 6px rgba(255,50,74,.18));
+    animation: swash 4s ease-out forwards 0ms; /* линията също 4s */
+    filter: drop-shadow(0 0 6px rgba(255,50,74,.2));
   }
 
   @keyframes draw   { to { stroke-dashoffset: 0; } }
@@ -84,7 +81,7 @@
           text-anchor: middle;
         }
         .brand-small {
-          font: 700 170px/1 'Great Vibes', 'Dancing Script', cursive;
+          font: 700 170px/1 'Great Vibes', 'Dancing+Script', cursive;
           text-anchor: middle;
         }
         .italicish { transform: skewX(-3deg); }
@@ -117,68 +114,118 @@
 <button class="skip" aria-label="Пропусни интрото" onclick="window.location.href='page1.html'">Пропусни →</button>
 
 <script>
-/* ===== Фойерверки ===== */
+/* ===== Космически „балончета“ (псевдо-4D): 3D дълбочина + разширяване към камерата ===== */
 (() => {
   const canvas = document.querySelector('.fireworks');
   const ctx = canvas.getContext('2d');
   const DPR = Math.max(1, Math.floor(window.devicePixelRatio || 1));
   const particles = [];
-  const colors = ['#FF324A','#31FFA6','#206EFF','#FFFF99','#FFFFFF'];
+  const colors = ['#FF324A','#31FFA6','#206EFF','#A1A1FF','#FFFFFF'];
 
+  let cw, ch, cx, cy;
   function resize() {
-    canvas.width  = innerWidth * DPR;
-    canvas.height = innerHeight * DPR;
+    cw = canvas.width  = innerWidth * DPR;
+    ch = canvas.height = innerHeight * DPR;
     canvas.style.width  = innerWidth + 'px';
     canvas.style.height = innerHeight + 'px';
     ctx.setTransform(DPR,0,0,DPR,0,0);
+    cx = cw / (2*DPR);
+    cy = ch / (2*DPR);
   }
   resize();
   addEventListener('resize', resize);
 
-  // позволяваме custom размер (count) за взрива
-  function spawnBurst(x, y, count = 40) {
-    for (let i=0;i<count;i++){
-      const ang = (Math.PI*2) * (i/count) + (Math.random()*0.25);
-      const spd = 2 + Math.random()*3.8;
-      particles.push({
-        x, y,
-        vx: Math.cos(ang)*spd,
-        vy: Math.sin(ang)*spd - (Math.random()*1.5),
-        r: 2 + Math.random()*3.5,
-        life: 70 + Math.random()*40,
-        color: colors[(Math.random()*colors.length)|0],
-        alpha: 1
-      });
+  // Една частица със „з-дълбочина“ и разширяване (балон)
+  function makeParticle(x, y, variant='cosmic'){
+    const angle = Math.random() * Math.PI * 2;
+    const speed = 1.2 + Math.random()*2.8;
+    // Z-дълбочина: [-1 .. 1] -> влияе на скалата (по-близо = по-голямо)
+    const z = -0.6 + Math.random()*1.2;
+    const towardsCamera = (Math.random() < 0.35) ? (0.015 + Math.random()*0.03) : 0.0; // част от тях идват „към теб“
+
+    return {
+      x, y,
+      vx: Math.cos(angle)*speed,
+      vy: Math.sin(angle)*speed,
+      // z расте => „приближава“ към камерата
+      z,
+      vz: towardsCamera,
+      r: 1 + Math.random()*2.2,
+      dr: 0.04 + Math.random()*0.08,       // балонът се разширява
+      life: 80 + Math.random()*50,
+      color: colors[(Math.random()*colors.length)|0],
+      alpha: 0.95,
+      variant
+    };
+  }
+
+  // Голям взрив в центъра — count контролира мащаба
+  function spawnBurst(x, y, count = 200){
+    for(let i=0;i<count;i++){
+      particles.push(makeParticle(x, y, 'cosmic'));
     }
   }
 
-  function step() {
+  function step(){
     ctx.clearRect(0,0,canvas.width,canvas.height);
-    for (let i=particles.length-1;i>=0;i--){
+
+    // Additive blending за „космически“ ефект
+    ctx.globalCompositeOperation = 'lighter';
+
+    for(let i=particles.length-1;i>=0;i--){
       const p = particles[i];
-      p.vy += 0.06;
-      p.vx *= 0.99; p.vy *= 0.99;
-      p.x += p.vx; p.y += p.vy;
-      p.life--; p.alpha = Math.max(0,p.life/90);
+
+      // З-базирана скала (perspective-ish)
+      p.z += p.vz;
+      const depthScale = 1 + (p.z * 0.9); // колкото по-близо (z -> +), толкова по-голям
+      const s = Math.max(0.35, depthScale);
+
+      // Лека гравитация и съпротивление
+      p.vy += 0.02;
+      p.vx *= 0.992; p.vy *= 0.992;
+
+      p.x += p.vx;
+      p.y += p.vy;
+
+      // Балонът расте във времето, повлиян и от „приближаването“
+      p.r += p.dr + (p.vz*6);
+
+      p.life--;
+      p.alpha = Math.max(0, p.life/100);
+
+      // Рисуване: меко „балонче“ с ореол
+      const rr = Math.max(0.5, p.r * s);
+      const grd = ctx.createRadialGradient(p.x, p.y, rr*0.2, p.x, p.y, rr);
+      grd.addColorStop(0,   p.color + 'EE');   // по-ярък център
+      grd.addColorStop(0.6, p.color + '66');
+      grd.addColorStop(1,   '#00000000');
+
       ctx.globalAlpha = p.alpha;
-      ctx.beginPath(); ctx.arc(p.x,p.y,p.r,0,Math.PI*2);
-      ctx.fillStyle = p.color; ctx.fill();
+      ctx.beginPath();
+      ctx.fillStyle = grd;
+      ctx.arc(p.x, p.y, rr, 0, Math.PI*2);
+      ctx.fill();
       ctx.globalAlpha = 1;
-      if (p.life<=0) particles.splice(i,1);
+
+      // премахване
+      if(p.life <= 0 || rr > Math.max(cw,ch)) particles.splice(i,1);
     }
+
+    ctx.globalCompositeOperation = 'source-over';
     requestAnimationFrame(step);
   }
   step();
 
-  // Клик – малък локален взрив (по желание)
+  // Клик: „мини-космос“ на мястото на курсора
   addEventListener('pointerdown', e => {
-    spawnBurst(e.clientX, e.clientY, 50);
+    spawnBurst(e.clientX, e.clientY, 90);
   });
 
-  // На 6-тата секунда: един ГОЛЯМ взрив в центъра (по-голям от преди)
+  // На 5-тата секунда: ЕДИН ОГРОМЕН „космически“ взрив в центъра,
+  // който се разширява към камерата и навсякъде.
   setTimeout(() => {
-    spawnBurst(innerWidth/2, innerHeight/2, 260);
-  }, 6000);
+    spawnBurst(cx, cy, 320); // по-голям от предходните
+  }, 5000);
 })();
 
 /* ===== Авто-прехвърляне: на 8-мата секунда ===== */
