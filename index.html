@@ -14,17 +14,16 @@
     width: 100%; height: 100%;
     display: grid; place-items: center;
     padding: 6vh 4vw;
-    /* перспектива за частиците; логото НЕ се пипа */
-    perspective: 1200px;
+    perspective: 1200px; /* за 3D усещане на частиците */
   }
   .logo { width: min(92vw, 1100px); height: auto; display:block; }
 
-  /* ===== ТЪНКО И БЪРЗО КАЛИГРАФСКО ИЗПИСВАНЕ (4s) ===== */
+  /* ===== ТЪНЪК, БЯЛ КОНТУР + ЕДНОВРЕМЕННО ЗАПЪЛВАНЕ (4s) ===== */
 
-  #logo-stroke {
+  .logo-stroke {
     fill: none;
-    stroke: #ffffff;
-    stroke-width: 1.4;                 /* по-тънко */
+    stroke: #ffffff;          /* ← БЯЛО РИСУВАНЕ */
+    stroke-width: 1.4;        /* тънко */
     stroke-linecap: round;
     stroke-linejoin: round;
     stroke-dasharray: 2000;
@@ -33,10 +32,10 @@
     filter: drop-shadow(0 0 4px rgba(255,255,255,.22));
   }
 
-  #logo-fill {
+  .logo-fill {
     fill: url(#brandGradient);
     opacity: 0;
-    animation: fillin 4s ease-out forwards 0ms; /* оцветяване също 4s, едновременно */
+    animation: fillin 4s ease-out forwards 0ms; /* оцветяване 4s, едновременно */
     mix-blend-mode: screen;
     filter: drop-shadow(0 6px 18px rgba(49,255,166,.12))
             drop-shadow(0 10px 28px rgba(32,110,255,.12));
@@ -45,12 +44,12 @@
   .swash {
     fill: none;
     stroke: url(#brandGradient);
-    stroke-width: 1.3;                 /* фино */
+    stroke-width: 1.3;
     stroke-linecap: round;
     opacity: 0;
     stroke-dasharray: 1400;
     stroke-dashoffset: 1400;
-    animation: swash 4s ease-out forwards 0ms; /* линията също 4s */
+    animation: swash 4s ease-out forwards 0ms;  /* линията също 4s */
     filter: drop-shadow(0 0 6px rgba(255,50,74,.2));
   }
 
@@ -78,17 +77,10 @@
     <defs>
       <style>
         @import url('https://fonts.googleapis.com/css2?family=Great+Vibes&family=Dancing+Script:wght@700&display=swap');
-        .brand {
-          font: 700 200px/1 'Great Vibes', 'Dancing Script', cursive;
-          text-anchor: middle;
-        }
-        .brand-small {
-          font: 700 170px/1 'Great Vibes', 'Dancing Script', cursive;
-          text-anchor: middle;
-        }
+        .brand { font: 700 200px/1 'Great Vibes', 'Dancing Script', cursive; text-anchor: middle; }
+        .brand-small { font: 700 170px/1 'Great Vibes', 'Dancing Script', cursive; text-anchor: middle; }
         .italicish { transform: skewX(-3deg); }
       </style>
-
       <linearGradient id="brandGradient" x1="0%" y1="0%" x2="100%" y2="0%">
         <stop offset="0%"   stop-color="#31FFA6"/>
         <stop offset="50%"  stop-color="#206EFF"/>
@@ -96,27 +88,26 @@
       </linearGradient>
     </defs>
 
-    <!-- Stroke -->
-    <text id="tYour"   id="logo-stroke" class="brand" x="50%" y="40%">Your</text>
-    <text id="tFashS"  id="logo-stroke" class="brand-small italicish" x="50%" y="78%">Fashion</text>
+    <!-- Stroke (контур) -->
+    <text class="brand logo-stroke" x="50%" y="40%" id="strokeYour">Your</text>
+    <text class="brand-small italicish logo-stroke" x="50%" y="78%" id="strokeFash">Fashion</text>
 
-    <!-- Fill -->
-    <text id="fYour"   id="logo-fill" class="brand" x="50%" y="40%">Your</text>
-    <text id="fFashS"  id="logo-fill" class="brand-small italicish" x="50%" y="78%">Fashion</text>
+    <!-- Fill (запълване) -->
+    <text class="brand logo-fill" x="50%" y="40%" id="fillYour">Your</text>
+    <text class="brand-small italicish logo-fill" x="50%" y="78%" id="fillFash">Fashion</text>
 
     <!-- Подчертаване -->
-    <path id="pSwash" class="swash"
+    <path class="swash" id="swash"
           d="M 320 600
              C 520 650, 880 650, 1060 585
-             S 1280 500, 1200 470"
-    />
+             S 1280 500, 1200 470"/>
   </svg>
 </div>
 
 <button class="skip" aria-label="Пропусни интрото" onclick="window.location.href='page1.html'">Пропусни →</button>
 
 <script>
-/* ===== Космически фойерверк, който избухва ОТ БУКВИТЕ във ВСИЧКИ ПОСОКИ ===== */
+/* ===== Космически взрив от САМИТЕ букви (5-та секунда) ===== */
 (() => {
   const canvas = document.querySelector('.fireworks');
   const ctx = canvas.getContext('2d');
@@ -134,35 +125,33 @@
   resize();
   addEventListener('resize', resize);
 
-  // равномерно случайно направление по сферата (3D)
+  // равномерно случайно направление по сфера
   function randomUnitVec3(){
-    const u = Math.random()*2 - 1;          // cos(phi) in [-1,1]
-    const theta = Math.random()*Math.PI*2;  // angle in [0,2pi)
+    const u = Math.random()*2 - 1;          // cos(phi) ∈ [-1,1]
+    const t = Math.random()*Math.PI*2;      // theta ∈ [0,2pi)
     const s = Math.sqrt(1 - u*u);
-    return { x: s*Math.cos(theta), y: s*Math.sin(theta), z: u };
+    return { x: s*Math.cos(t), y: s*Math.sin(t), z: u };
   }
 
-  // една частица с 3D дълбочина
   function makeParticle(x, y, baseSpeed=3.1){
-    const dir = randomUnitVec3(); // посока във всички измерения
-    const spd = baseSpeed * (0.7 + Math.random()*0.8); // малко разнообразие
+    const dir = randomUnitVec3();
+    const spd = baseSpeed * (0.7 + Math.random()*0.8);
     return {
       x, y,
       vx: dir.x * spd,
       vy: dir.y * spd,
-      z: 0,                       // старт на „плоскостта“ на буквите
-      vz: dir.z * 0.04,           // към/от камерата
+      z: 0,
+      vz: dir.z * 0.04,                 // към/от „камерата“
       r: 1 + Math.random()*2.2,
-      dr: 0.03 + Math.random()*0.06,
+      dr: 0.03 + Math.random()*0.06,    // разширяване („балон“)
       life: 90 + Math.random()*60,
       color: colors[(Math.random()*colors.length)|0],
       alpha: 0.95
     };
   }
 
-  // взрив от множество точки вътре в даден DOMRect
+  // взрив от множество точки вътре в Rect
   function burstFromRect(rect, count=200){
-    // координати в CSS пиксели
     const left = rect.left, top = rect.top, w = rect.width, h = rect.height;
     for(let i=0;i<count;i++){
       const x = left + Math.random()*w;
@@ -180,18 +169,18 @@
 
       // 3D дълбочина
       p.z += p.vz;
-      const depthScale = 1 + (p.z * 1.0); // към камерата -> по-големи
+      const depthScale = 1 + (p.z * 1.0);
       const s = Math.max(0.35, depthScale);
 
-      // лека физика
-      p.vx *= 0.994; p.vy *= 0.994; // съпротивление
+      // съпротивление
+      p.vx *= 0.994; p.vy *= 0.994;
       p.x += p.vx; p.y += p.vy;
 
-      // растеж на „балоните“
+      // растеж
       p.r += p.dr + (p.vz*5);
       p.life--; p.alpha = Math.max(0, p.life/110);
 
-      // рисуване
+      // рисуване „балон“
       const rr = Math.max(0.5, p.r * s);
       const grd = ctx.createRadialGradient(p.x, p.y, rr*0.15, p.x, p.y, rr);
       grd.addColorStop(0,   p.color + 'EE');
@@ -213,34 +202,23 @@
   }
   step();
 
-  // Клик: локални сферични мини-взривове върху буквите
+  // Клик: локален мини-взрив при курсора
   addEventListener('pointerdown', e => {
-    // около мястото на клика
-    const rect = { left: e.clientX-10, top: e.clientY-10, width: 20, height: 20 };
-    burstFromRect(rect, 100);
+    burstFromRect({ left: e.clientX-10, top: e.clientY-10, width: 20, height: 20 }, 100);
   });
 
-  // На 5-та секунда: ГОЛЯМ взрив, който излиза от буквите във всички посоки
+  // На 5-та секунда: голям сферичен взрив от буквите (и подчертаването)
   setTimeout(() => {
-    const svg   = document.getElementById('logoSVG');
-    const tYour = document.getElementById('tYour');
-    const tFash = document.getElementById('tFashS');
-    const swash = document.getElementById('pSwash');
-
-    // взимаме екрани координати на отделните елементи
-    const r1 = tYour.getBoundingClientRect();
-    const r2 = tFash.getBoundingClientRect();
-    const r3 = swash.getBoundingClientRect();
-
-    // по-голям брой частици от самите букви
+    const r1 = document.getElementById('strokeYour').getBoundingClientRect();
+    const r2 = document.getElementById('strokeFash').getBoundingClientRect();
+    const r3 = document.getElementById('swash').getBoundingClientRect();
     burstFromRect(r1, 280);
     burstFromRect(r2, 340);
-    // малко и от линията за красота
     burstFromRect(r3, 160);
   }, 5000);
 })();
 
-/* ===== Авто-прехвърляне: на 8-мата секунда ===== */
+/* ===== Redirect на 8-мата секунда ===== */
 setTimeout(() => {
   window.location.href = "page1.html";
 }, 8000);
