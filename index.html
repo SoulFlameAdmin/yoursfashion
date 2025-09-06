@@ -17,9 +17,8 @@
   }
   .logo { width: min(92vw, 1100px); height: auto; display:block; }
 
-  /* ===== ЕДНОВРЕМЕННИ АНИМАЦИИ (10s) ===== */
+  /* ===== ЕДНОВРЕМЕННИ АНИМАЦИИ (7s) ===== */
 
-  /* Тънък контур и бавно изписване (10s) */
   #logo-stroke {
     fill: none;
     stroke: #ffffff;
@@ -28,21 +27,19 @@
     stroke-linejoin: round;
     stroke-dasharray: 2000;
     stroke-dashoffset: 2000;
-    animation: draw 10s ease-out forwards 0ms; /* 10s рисуване */
+    animation: draw 7s ease-out forwards 0ms;
     filter: drop-shadow(0 0 5px rgba(255,255,255,.22));
   }
 
-  /* Плавно запълване (също 10s), започва едновременно със stroke */
   #logo-fill {
     fill: url(#brandGradient);
     opacity: 0;
-    animation: fillin 10s ease-out forwards 0ms; /* 10s оцветяване */
+    animation: fillin 7s ease-out forwards 0ms;
     mix-blend-mode: screen;
     filter: drop-shadow(0 6px 18px rgba(49,255,166,.12))
             drop-shadow(0 10px 28px rgba(32,110,255,.12));
   }
 
-  /* Подчертаващ flourish – също 10s, стартира едновременно */
   .swash {
     fill: none;
     stroke: url(#brandGradient);
@@ -51,7 +48,7 @@
     opacity: 0;
     stroke-dasharray: 1400;
     stroke-dashoffset: 1400;
-    animation: swash 10s ease-out forwards 0ms; /* 10s за линията */
+    animation: swash 7s ease-out forwards 0ms;
     filter: drop-shadow(0 0 8px rgba(255,50,74,.22));
   }
 
@@ -135,7 +132,6 @@
   resize();
   addEventListener('resize', resize);
 
-  // позволяваме custom размер (count) за големия взрив
   function spawnBurst(x, y, count = 40) {
     for (let i=0;i<count;i++){
       const ang = (Math.PI*2) * (i/count) + (Math.random()*0.25);
@@ -170,14 +166,14 @@
   }
   step();
 
-  // клик – по избор оставяме стандартен взрив на мястото на курсора
+  // клик -> нормален взрив
   addEventListener('pointerdown', e => {
     spawnBurst(e.clientX, e.clientY, 50);
   });
 
-  // Точно преди redirect: 9.5s -> един ОГРОМЕН взрив в центъра
+  // голям взрив в центъра преди redirect
   setTimeout(() => {
-    spawnBurst(innerWidth/2, innerHeight/2, 160);
+    spawnBurst(innerWidth/2, innerHeight/2, 240);
   }, 9500);
 })();
 
