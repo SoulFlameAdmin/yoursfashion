@@ -17,44 +17,47 @@
   }
   .logo { width: min(92vw, 1100px); height: auto; display:block; }
 
-  /* ===== ЕДНОВРЕМЕННИ АНИМАЦИИ (7s) ===== */
+  /* ===== ТЪНЪК КОНТУР + ЕДНОВРЕМЕННИ АНИМАЦИИ (5s) ===== */
 
+  /* по-тънко рисуване */
   #logo-stroke {
     fill: none;
     stroke: #ffffff;
-    stroke-width: 2.2;
+    stroke-width: 1.8;              /* по-тънко */
     stroke-linecap: round;
     stroke-linejoin: round;
     stroke-dasharray: 2000;
     stroke-dashoffset: 2000;
-    animation: draw 7s ease-out forwards 0ms;
-    filter: drop-shadow(0 0 5px rgba(255,255,255,.22));
+    animation: draw 5s ease-out forwards 0ms;   /* рисуване 5s */
+    filter: drop-shadow(0 0 4px rgba(255,255,255,.2));
   }
 
+  /* запълване – едновременно за 5s */
   #logo-fill {
     fill: url(#brandGradient);
     opacity: 0;
-    animation: fillin 7s ease-out forwards 0ms;
+    animation: fillin 5s ease-out forwards 0ms; /* 5s fill */
     mix-blend-mode: screen;
     filter: drop-shadow(0 6px 18px rgba(49,255,166,.12))
             drop-shadow(0 10px 28px rgba(32,110,255,.12));
   }
 
+  /* долната линия – също 5s */
   .swash {
     fill: none;
     stroke: url(#brandGradient);
-    stroke-width: 2;
+    stroke-width: 1.6;              /* по-тънко */
     stroke-linecap: round;
     opacity: 0;
     stroke-dasharray: 1400;
     stroke-dashoffset: 1400;
-    animation: swash 7s ease-out forwards 0ms;
-    filter: drop-shadow(0 0 8px rgba(255,50,74,.22));
+    animation: swash 5s ease-out forwards 0ms;  /* 5s линия */
+    filter: drop-shadow(0 0 6px rgba(255,50,74,.18));
   }
 
   @keyframes draw   { to { stroke-dashoffset: 0; } }
-  @keyframes fillin { 0% {opacity: 0} 20% {opacity:.25} 60% {opacity:.85} 100% {opacity:1} }
-  @keyframes swash  { 0% {stroke-dashoffset:1400; opacity:0} 10%{opacity:.4} 100% {stroke-dashoffset:0; opacity:.95} }
+  @keyframes fillin { 0% {opacity: 0} 30% {opacity:.35} 70% {opacity:.9} 100% {opacity:1} }
+  @keyframes swash  { 0% {stroke-dashoffset:1400; opacity:0} 15%{opacity:.45} 100% {stroke-dashoffset:0; opacity:.95} }
 
   .skip {
     position: fixed; right: 16px; bottom: 16px; z-index: 2;
@@ -132,6 +135,7 @@
   resize();
   addEventListener('resize', resize);
 
+  // позволяваме custom размер (count) за взрива
   function spawnBurst(x, y, count = 40) {
     for (let i=0;i<count;i++){
       const ang = (Math.PI*2) * (i/count) + (Math.random()*0.25);
@@ -166,21 +170,21 @@
   }
   step();
 
-  // клик -> нормален взрив
+  // Клик – малък локален взрив (по желание)
   addEventListener('pointerdown', e => {
     spawnBurst(e.clientX, e.clientY, 50);
   });
 
-  // голям взрив в центъра преди redirect
+  // На 6-тата секунда: един ГОЛЯМ взрив в центъра (по-голям от преди)
   setTimeout(() => {
-    spawnBurst(innerWidth/2, innerHeight/2, 240);
-  }, 9500);
+    spawnBurst(innerWidth/2, innerHeight/2, 260);
+  }, 6000);
 })();
 
-/* ===== Авто-прехвърляне след 10 сек ===== */
+/* ===== Авто-прехвърляне: на 8-мата секунда ===== */
 setTimeout(() => {
   window.location.href = "page1.html";
-}, 10000);
+}, 8000);
 </script>
 </body>
 </html>
