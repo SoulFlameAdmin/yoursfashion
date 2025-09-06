@@ -18,7 +18,7 @@ if ($LASTEXITCODE -ne 0 -or [string]::IsNullOrWhiteSpace((git config user.email)
 # Запомняне на креденшъли (Git Credential Manager)
 git config credential.helper manager-core | Out-Null
 
-Write-Host "🔄 Стартирам наблюдение на $RepoPath (branch: $Branch). Ctrl+C за стоп."
+Write-Host " Стартирам наблюдение на $RepoPath (branch: $Branch). Ctrl+C за стоп."
 
 while ($true) {
     # Има ли промени?
