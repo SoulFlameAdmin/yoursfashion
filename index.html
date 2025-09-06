@@ -17,22 +17,22 @@
   }
   .logo { width: min(92vw, 1100px); height: auto; display:block; }
 
-  /* По-тънък контур */
+  /* По-тънък контур и по-бавна анимация */
   #logo-stroke {
     fill: none;
     stroke: #ffffff;
-    stroke-width: 2.8; /* преди беше 5 */
+    stroke-width: 2.6;
     stroke-linecap: round;
     stroke-linejoin: round;
     stroke-dasharray: 2000;
     stroke-dashoffset: 2000;
-    animation: draw 2.2s ease-out forwards 250ms;
+    animation: draw 4s ease-out forwards 400ms;
     filter: drop-shadow(0 0 6px rgba(255,255,255,.2));
   }
   #logo-fill {
     fill: url(#brandGradient);
     opacity: 0;
-    animation: fillin 950ms ease-out forwards 1850ms;
+    animation: fillin 1.6s ease-out forwards 4600ms;
     mix-blend-mode: screen;
     filter: drop-shadow(0 6px 18px rgba(49,255,166,.12))
             drop-shadow(0 10px 28px rgba(32,110,255,.12));
@@ -41,12 +41,12 @@
   .swash {
     fill: none;
     stroke: url(#brandGradient);
-    stroke-width: 2.2; /* по-тънко подчертаване */
+    stroke-width: 2;
     stroke-linecap: round;
     opacity: 0;
     stroke-dasharray: 1200;
     stroke-dashoffset: 1200;
-    animation: swash 1.1s ease-out forwards 2100ms;
+    animation: swash 2s ease-out forwards 6000ms;
     filter: drop-shadow(0 0 8px rgba(255,50,74,.25));
   }
 
@@ -173,13 +173,13 @@
     spawnBurst(innerWidth/2, innerHeight/2 - 90);
     spawnBurst(innerWidth/2 - 220, innerHeight/2 + 80);
     spawnBurst(innerWidth/2 + 220, innerHeight/2 + 80);
-  }, 2100);
+  }, 2500);
 })();
 
-/* ===== Авто-прехвърляне след 5 сек ===== */
+/* ===== Авто-прехвърляне след 10 сек ===== */
 setTimeout(() => {
   window.location.href = "page1.html";
-}, 5000);
+}, 10000);
 </script>
 </body>
 </html>
