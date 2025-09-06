@@ -17,42 +17,47 @@
   }
   .logo { width: min(92vw, 1100px); height: auto; display:block; }
 
-  /* По-тънък контур и по-бавна анимация */
+  /* ===== ЕДНОВРЕМЕННИ АНИМАЦИИ (10s) ===== */
+
+  /* Тънък контур и бавно изписване (10s) */
   #logo-stroke {
     fill: none;
     stroke: #ffffff;
-    stroke-width: 2.6;
+    stroke-width: 2.2;
     stroke-linecap: round;
     stroke-linejoin: round;
     stroke-dasharray: 2000;
     stroke-dashoffset: 2000;
-    animation: draw 4s ease-out forwards 400ms;
-    filter: drop-shadow(0 0 6px rgba(255,255,255,.2));
+    animation: draw 10s ease-out forwards 0ms; /* 10s рисуване */
+    filter: drop-shadow(0 0 5px rgba(255,255,255,.22));
   }
+
+  /* Плавно запълване (също 10s), започва едновременно със stroke */
   #logo-fill {
     fill: url(#brandGradient);
     opacity: 0;
-    animation: fillin 1.6s ease-out forwards 4600ms;
+    animation: fillin 10s ease-out forwards 0ms; /* 10s оцветяване */
     mix-blend-mode: screen;
     filter: drop-shadow(0 6px 18px rgba(49,255,166,.12))
             drop-shadow(0 10px 28px rgba(32,110,255,.12));
   }
 
+  /* Подчертаващ flourish – също 10s, стартира едновременно */
   .swash {
     fill: none;
     stroke: url(#brandGradient);
     stroke-width: 2;
     stroke-linecap: round;
     opacity: 0;
-    stroke-dasharray: 1200;
-    stroke-dashoffset: 1200;
-    animation: swash 2s ease-out forwards 6000ms;
-    filter: drop-shadow(0 0 8px rgba(255,50,74,.25));
+    stroke-dasharray: 1400;
+    stroke-dashoffset: 1400;
+    animation: swash 10s ease-out forwards 0ms; /* 10s за линията */
+    filter: drop-shadow(0 0 8px rgba(255,50,74,.22));
   }
 
   @keyframes draw   { to { stroke-dashoffset: 0; } }
-  @keyframes fillin { to { opacity: 1; } }
-  @keyframes swash  { to { stroke-dashoffset: 0; opacity: .95; } }
+  @keyframes fillin { 0% {opacity: 0} 20% {opacity:.25} 60% {opacity:.85} 100% {opacity:1} }
+  @keyframes swash  { 0% {stroke-dashoffset:1400; opacity:0} 10%{opacity:.4} 100% {stroke-dashoffset:0; opacity:.95} }
 
   .skip {
     position: fixed; right: 16px; bottom: 16px; z-index: 2;
@@ -102,9 +107,9 @@
 
     <!-- Подчертаване -->
     <path class="swash"
-          d="M 340 600
-             C 520 640, 880 640, 1040 585
-             S 1260 500, 1200 470"
+          d="M 320 600
+             C 520 650, 880 650, 1060 585
+             S 1280 500, 1200 470"
     />
   </svg>
 </div>
@@ -130,8 +135,8 @@
   resize();
   addEventListener('resize', resize);
 
-  function spawnBurst(x, y) {
-    const count = 40;
+  // позволяваме custom размер (count) за големия взрив
+  function spawnBurst(x, y, count = 40) {
     for (let i=0;i<count;i++){
       const ang = (Math.PI*2) * (i/count) + (Math.random()*0.25);
       const spd = 2 + Math.random()*3.8;
@@ -139,8 +144,8 @@
         x, y,
         vx: Math.cos(ang)*spd,
         vy: Math.sin(ang)*spd - (Math.random()*1.5),
-        r: 1.8 + Math.random()*3.2,
-        life: 60 + Math.random()*34,
+        r: 2 + Math.random()*3.5,
+        life: 70 + Math.random()*40,
         color: colors[(Math.random()*colors.length)|0],
         alpha: 1
       });
@@ -165,15 +170,15 @@
   }
   step();
 
+  // клик – по избор оставяме стандартен взрив на мястото на курсора
   addEventListener('pointerdown', e => {
-    spawnBurst(e.clientX, e.clientY);
+    spawnBurst(e.clientX, e.clientY, 50);
   });
 
+  // Точно преди redirect: 9.5s -> един ОГРОМЕН взрив в центъра
   setTimeout(() => {
-    spawnBurst(innerWidth/2, innerHeight/2 - 90);
-    spawnBurst(innerWidth/2 - 220, innerHeight/2 + 80);
-    spawnBurst(innerWidth/2 + 220, innerHeight/2 + 80);
-  }, 2500);
+    spawnBurst(innerWidth/2, innerHeight/2, 160);
+  }, 9500);
 })();
 
 /* ===== Авто-прехвърляне след 10 сек ===== */
