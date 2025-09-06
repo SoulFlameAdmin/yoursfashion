@@ -8,35 +8,63 @@
   html, body { height: 100%; margin: 0; background:#0b0f16; overflow:hidden; }
   * { box-sizing: border-box; }
 
-  .fireworks {
-    position: fixed; inset: 0; width: 100%; height: 100%;
-  }
+  .fireworks { position: fixed; inset: 0; width: 100%; height: 100%; }
   .wrap {
     position: relative; z-index: 1;
     width: 100%; height: 100%;
     display: grid; place-items: center;
+    padding: 6vh 4vw;
   }
-  .logo { width: min(90vw, 1000px); height: auto; display:block; }
+  .logo { width: min(92vw, 1100px); height: auto; display:block; }
 
+  /* Ръкописен стил: по-тънък контур и плавно запълване */
   #logo-stroke {
     fill: none;
-    stroke: #fff;
-    stroke-width: 8;
+    stroke: #ffffff;
+    stroke-width: 5;
+    stroke-linecap: round;
     stroke-linejoin: round;
     stroke-dasharray: 2000;
     stroke-dashoffset: 2000;
-    animation: draw 2s ease-out forwards 300ms;
-    filter: drop-shadow(0 0 6px rgba(255,255,255,.35));
+    animation: draw 2.2s ease-out forwards 250ms;
+    filter: drop-shadow(0 0 8px rgba(255,255,255,.25));
   }
   #logo-fill {
     fill: url(#brandGradient);
     opacity: 0;
-    animation: fillin 900ms linear forwards 1800ms;
-    mix-blend-mode: lighten;
+    animation: fillin 950ms ease-out forwards 1850ms;
+    mix-blend-mode: screen;
+    filter: drop-shadow(0 6px 18px rgba(49,255,166,.12))
+            drop-shadow(0 10px 28px rgba(32,110,255,.12));
+  }
+
+  /* Подпис подчертаване */
+  .swash {
+    fill: none;
+    stroke: url(#brandGradient);
+    stroke-width: 4;
+    stroke-linecap: round;
+    opacity: 0;
+    stroke-dasharray: 1200;
+    stroke-dashoffset: 1200;
+    animation: swash 1.1s ease-out forwards 2100ms;
+    filter: drop-shadow(0 0 10px rgba(255,50,74,.25));
   }
 
   @keyframes draw   { to { stroke-dashoffset: 0; } }
   @keyframes fillin { to { opacity: 1; } }
+  @keyframes swash  { to { stroke-dashoffset: 0; opacity: .95; } }
+
+  /* Малък „skip“ за UX (по желание може да го махнеш) */
+  .skip {
+    position: fixed; right: 16px; bottom: 16px; z-index: 2;
+    border: 1px solid rgba(255,255,255,.25);
+    background: rgba(255,255,255,.06);
+    backdrop-filter: blur(6px);
+    color: #fff; font: 700 14px/1 system-ui, -apple-system, Segoe UI, Roboto, Arial;
+    padding: 10px 12px; border-radius: 12px; cursor: pointer;
+  }
+  .skip:hover { background: rgba(255,255,255,.12); }
 </style>
 </head>
 <body>
@@ -44,27 +72,53 @@
 <canvas class="fireworks"></canvas>
 
 <div class="wrap">
-  <svg class="logo" viewBox="0 0 1200 600" role="img" aria-label="Your Fashion">
+  <svg class="logo" viewBox="0 0 1400 700" role="img" aria-label="Your Fashion">
     <defs>
+      <!-- Красиви ръкописни шрифтове -->
+      <style>
+        @import url('https://fonts.googleapis.com/css2?family=Great+Vibes&family=Dancing+Script:wght@700&display=swap');
+        /* Основен „подпис“ стил */
+        .brand {
+          font: 700 200px/1 'Great Vibes', 'Dancing Script', cursive;
+          text-anchor: middle;
+          letter-spacing: .5px;
+        }
+        /* Долният ред – малко по-малък и с лек наклон */
+        .brand-small {
+          font: 700 170px/1 'Great Vibes', 'Dancing Script', cursive;
+          text-anchor: middle;
+          letter-spacing: .6px;
+        }
+        /* Фина перспектива чрез SVG transform */
+        .italicish { transform: skewX(-3deg); }
+      </style>
+
+      <!-- Градиент за запълване -->
       <linearGradient id="brandGradient" x1="0%" y1="0%" x2="100%" y2="0%">
         <stop offset="0%"   stop-color="#31FFA6"/>
         <stop offset="50%"  stop-color="#206EFF"/>
         <stop offset="100%" stop-color="#FF324A"/>
       </linearGradient>
-      <style>
-        @import url('https://fonts.googleapis.com/css2?family=Poppins:wght@800&display=swap');
-        .brand { font: 800 180px/1.2 'Poppins', system-ui, sans-serif; text-anchor: middle; }
-      </style>
     </defs>
 
-    <!-- stroke -->
+    <!-- Контур (stroke) -->
     <text id="logo-stroke" class="brand" x="50%" y="40%">Your</text>
-    <text id="logo-stroke" class="brand" x="50%" y="80%">Fashion</text>
-    <!-- fill -->
+    <text id="logo-stroke" class="brand-small italicish" x="50%" y="78%">Fashion</text>
+
+    <!-- Запълване (fill) -->
     <text id="logo-fill" class="brand" x="50%" y="40%">Your</text>
-    <text id="logo-fill" class="brand" x="50%" y="80%">Fashion</text>
+    <text id="logo-fill" class="brand-small italicish" x="50%" y="78%">Fashion</text>
+
+    <!-- Калиграфски „swash“ подчертаване под Fashion -->
+    <path class="swash"
+          d="M 340 600
+             C 520 640, 880 640, 1040 585
+             S 1260 500, 1200 470"
+    />
   </svg>
 </div>
+
+<button class="skip" aria-label="Пропусни интрото" onclick="window.location.href='page1.html'">Пропусни →</button>
 
 <script>
 /* ===== Фойерверки ===== */
@@ -86,16 +140,16 @@
   addEventListener('resize', resize);
 
   function spawnBurst(x, y) {
-    const count = 36;
+    const count = 40;
     for (let i=0;i<count;i++){
-      const ang = (Math.PI*2) * (i/count) + (Math.random()*0.2);
-      const spd = 2 + Math.random()*3.5;
+      const ang = (Math.PI*2) * (i/count) + (Math.random()*0.25);
+      const spd = 2 + Math.random()*3.8;
       particles.push({
         x, y,
         vx: Math.cos(ang)*spd,
         vy: Math.sin(ang)*spd - (Math.random()*1.5),
-        r: 2 + Math.random()*3,
-        life: 60 + Math.random()*30,
+        r: 1.8 + Math.random()*3.2,
+        life: 60 + Math.random()*34,
         color: colors[(Math.random()*colors.length)|0],
         alpha: 1
       });
@@ -124,15 +178,17 @@
     spawnBurst(e.clientX, e.clientY);
   });
 
+  // авто-бум след рисуване
   setTimeout(() => {
-    spawnBurst(innerWidth/2, innerHeight/2 - 80);
-    spawnBurst(innerWidth/2, innerHeight/2 + 120);
-  }, 2200);
+    spawnBurst(innerWidth/2, innerHeight/2 - 90);
+    spawnBurst(innerWidth/2 - 220, innerHeight/2 + 80);
+    spawnBurst(innerWidth/2 + 220, innerHeight/2 + 80);
+  }, 2100);
 })();
 
 /* ===== Авто-прехвърляне след 3 сек ===== */
 setTimeout(() => {
-  // Използваме href вместо replace -> при Refresh винаги почва от index.html
+  // href -> при Refresh винаги стартира от index.html
   window.location.href = "page1.html";
 }, 3000);
 </script>

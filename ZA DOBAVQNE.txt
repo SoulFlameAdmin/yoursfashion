@@ -1,0 +1,4 @@
+cd E:\MAGAZIN_SITE
+git add .
+git commit -m "Update index.html and page1.html with redirect logic"
+git push
