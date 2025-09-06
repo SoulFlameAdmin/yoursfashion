@@ -1,0 +1,17 @@
+﻿# OS
+Thumbs.db
+.DS_Store
+
+# Logs / temp
+*.log
+npm-debug.log*
+
+# Node / builds (ако добавиш инструменти)
+node_modules/
+dist/
+.build/
+
+# Local scripts (не искаме да са в репото)
+*.ps1
+*.bat
+*.cmd

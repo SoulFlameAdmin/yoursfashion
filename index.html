@@ -38,8 +38,6 @@
   @keyframes draw   { to { stroke-dashoffset: 0; } }
   @keyframes fillin { to { opacity: 1; } }
 </style>
-<link rel="prefetch" href="page1.html">
-<noscript><meta http-equiv="refresh" content="3;url=page1.html"></noscript>
 </head>
 <body>
 
@@ -126,7 +124,6 @@
     spawnBurst(e.clientX, e.clientY);
   });
 
-  // авто-бум след рисуване
   setTimeout(() => {
     spawnBurst(innerWidth/2, innerHeight/2 - 80);
     spawnBurst(innerWidth/2, innerHeight/2 + 120);
@@ -135,9 +132,8 @@
 
 /* ===== Авто-прехвърляне след 3 сек ===== */
 setTimeout(() => {
-  location.replace('page1.html');
-  // или пълен път, ако искаш: 
-  // location.replace('file:///E:/MAGAZIN_SITE/page1.html');
+  // Използваме href вместо replace -> при Refresh винаги почва от index.html
+  window.location.href = "page1.html";
 }, 3000);
 </script>
 </body>
