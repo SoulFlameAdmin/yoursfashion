@@ -1,0 +1,167 @@
+<!DOCTYPE html>
+<html lang="bg">
+<head>
+<meta charset="utf-8" />
+<meta name="viewport" content="width=device-width, initial-scale=1, viewport-fit=cover" />
+<title>YourFashionBG — Регистрация</title>
+<link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
+<link href="https://fonts.googleapis.com/css2?family=Inter:wght@400;500;600&display=swap" rel="stylesheet">
+<style>
+:root{--line:#e5e7eb;--ink:#0f172a}
+*{box-sizing:border-box}
+body{margin:0;font-family:Inter,system-ui,-apple-system,Segoe UI,Roboto,Arial,sans-serif;color:var(--ink);background:#fff}
+.container{max-width:800px;margin:0 auto;padding:20px}
+.card{border:1px solid var(--line);border-radius:16px;padding:20px;box-shadow:0 10px 30px rgba(0,0,0,.04)}
+h1{margin:0 0 12px}
+.sub{color:#475569;margin:0 0 18px}
+.grid{display:grid;grid-template-columns:1fr 1fr;gap:18px}
+label{font-weight:600;display:block;margin-bottom:6px}
+input,button,textarea{font:inherit}
+.input,textarea{width:100%;padding:12px 14px;border:1px solid var(--line);border-radius:12px}
+.btn{border:1px solid #111;background:#111;color:#fff;padding:12px 18px;border-radius:999px;cursor:pointer;font-weight:600}
+.hr{height:1px;background:var(--line);margin:18px 0}
+.bad{color:#ef4444;font-size:12px;margin-top:4px}
+.success{color:#16a34a;margin-top:10px;font-weight:600}
+.footer-mini{margin-top:18px;color:#64748b;font-size:12px}
+@media (max-width:700px){.grid{grid-template-columns:1fr}}
+</style>
+</head>
+<body>
+<div class="container">
+  <div class="card">
+    <h1>Регистрация</h1>
+    <p class="sub">Създай профил в <strong>YourFashionBG</strong>. Кошницата ти ще се запази към профила.</p>
+
+    <div class="hr"></div>
+
+    <form id="regForm" novalidate>
+      <div class="grid">
+        <div>
+          <label for="firstName">Име</label>
+          <input class="input" id="firstName" name="firstName" required>
+          <div class="bad" id="errFirst"></div>
+        </div>
+        <div>
+          <label for="lastName">Фамилия</label>
+          <input class="input" id="lastName" name="lastName" required>
+          <div class="bad" id="errLast"></div>
+        </div>
+
+        <div>
+          <label for="phone">Телефон</label>
+          <input class="input" id="phone" name="phone" inputmode="tel" placeholder="+359 88 123 4567" required>
+          <div class="bad" id="errPhone"></div>
+        </div>
+
+        <div>
+          <label for="email">Имейл</label>
+          <input class="input" id="email" name="email" type="email" placeholder="user@example.com" required>
+          <div class="bad" id="errEmail"></div>
+        </div>
+
+        <div>
+          <label for="password">Парола</label>
+          <input class="input" id="password" name="password" type="password" minlength="6" required>
+          <div class="bad" id="errPass"></div>
+        </div>
+
+        <div>
+          <label for="address">Адрес за доставка</label>
+          <input class="input" id="address" name="address" placeholder="Въведете адрес за доставка" required>
+          <div class="bad" id="errAddr"></div>
+        </div>
+      </div>
+
+      <div class="hr"></div>
+
+      <div style="text-align:right">
+        <button class="btn" type="submit" id="submitBtn">Завърши регистрация</button>
+      </div>
+      <div id="formStatus" class="success" style="display:none"></div>
+      <p class="footer-mini">С продължаване приемаш нашите Условия и Политика за поверителност.</p>
+    </form>
+  </div>
+</div>
+
+<script>
+const $ = (s)=>document.querySelector(s);
+const CART = JSON.parse(localStorage.getItem('CART')||'[]');
+
+function showErr(id,msg){const el=$(id); if(el) el.textContent=msg||'';}
+function validPhone(v){return /^\+?\d[\d\s\-]{7,}$/.test(v);}
+function validEmail(v){return /^[^\s@]+@[^\s@]+\.[^\s@]+$/.test(v);}
+
+$('#regForm').addEventListener('submit', async e=>{
+  e.preventDefault();
+  showErr('#errFirst'); showErr('#errLast'); showErr('#errPhone'); showErr('#errEmail'); showErr('#errPass'); showErr('#errAddr');
+
+  const firstName=$('#firstName').value.trim();
+  const lastName=$('#lastName').value.trim();
+  const phone=$('#phone').value.trim();
+  const email=$('#email').value.trim();
+  const password=$('#password').value;
+  const address=$('#address').value.trim();
+
+  let ok=true;
+  if(!firstName){showErr('#errFirst','Попълни име.');ok=false;}
+  if(!lastName){showErr('#errLast','Попълни фамилия.');ok=false;}
+  if(!validPhone(phone)){showErr('#errPhone','Невалиден телефон.');ok=false;}
+  if(!validEmail(email)){showErr('#errEmail','Невалиден имейл.');ok=false;}
+  if(password.length<6){showErr('#errPass','Минимум 6 символа.');ok=false;}
+  if(!address){showErr('#errAddr','Въведи адрес.');ok=false;}
+  if(!ok) return;
+
+  // Вземаме IP като ID
+  let ip=""; 
+  try {
+    const ipResp = await fetch("https://api.ipify.org?format=json");
+    const ipData = await ipResp.json();
+    ip = ipData.ip;
+  } catch(err) {
+    ip = "local-"+Date.now();
+  }
+
+  // Съставяме профил
+  const profile = {
+    id: ip,
+    firstName,
+    lastName,
+    phone,
+    email,
+    address,
+    created: Date.now()
+  };
+
+  // Запазваме в localStorage
+  localStorage.setItem("userProfile", JSON.stringify(profile));
+
+  // Казваме на index.html да опресни изгледа
+  window.parent.postMessage("user:registered", "*");
+
+  // Ако имаш бекенд:
+  const payload={user:profile,password,cart:CART};
+  $('#submitBtn').disabled=true; $('#submitBtn').textContent='Записване…';
+  try{
+    const r=await fetch('/api/register',{
+      method:'POST',
+      headers:{'Content-Type':'application/json'},
+      body:JSON.stringify(payload)
+    });
+    const data=await r.json().catch(()=>({ok:false}));
+    if(data.ok){
+      if(data.token) localStorage.setItem('authToken',data.token);
+      $('#formStatus').style.display='block';
+      $('#formStatus').textContent='Успешна регистрация! Пренасочване…';
+      setTimeout(()=>window.location.href='index.html',800);
+    }else{
+      alert(data.message||'Регистрацията не бе успешна.');
+      $('#submitBtn').disabled=false; $('#submitBtn').textContent='Завърши регистрация';
+    }
+  }catch(err){
+    alert('Грешка при връзка с бекенда.');
+    $('#submitBtn').disabled=false; $('#submitBtn').textContent='Завърши регистрация';
+  }
+});
+</script>
+</body>
+</html>

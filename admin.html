@@ -1,0 +1,156 @@
+<!DOCTYPE html>
+<html lang="bg">
+<head>
+<meta charset="utf-8" />
+<meta name="viewport" content="width=device-width, initial-scale=1" />
+<title>Admin</title>
+<link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
+<link href="https://fonts.googleapis.com/css2?family=Inter:wght@400;600&family=Orbitron:wght@700&display=swap" rel="stylesheet">
+<style>
+*{box-sizing:border-box}
+html,body{height:100%;margin:0}
+body{
+  font-family:Inter,system-ui,-apple-system,Segoe UI,Roboto,Arial,sans-serif;
+  color:#f2f2f2;
+  background:linear-gradient(180deg,#111,#161616);
+  display:grid;place-items:center;overflow:hidden;
+}
+
+/* анимиран фон */
+.side-waves, .side-waves::before, .side-waves::after{
+  position:fixed; inset:0; pointer-events:none; content:"";
+}
+.side-waves{
+  z-index:0;
+  background:
+    radial-gradient(45% 90% at -10% 50%, rgba(255,255,255,.18), transparent 60%),
+    radial-gradient(45% 90% at 110% 50%, rgba(255,255,255,.18), transparent 60%);
+  filter:blur(2px);
+}
+.side-waves::before{
+  background:
+    radial-gradient(38% 70% at -15% 50%, rgba(250,250,250,.22), transparent 65%),
+    radial-gradient(24% 60% at 15% 40%, rgba(255,255,255,.10), transparent 70%);
+  animation:drift-left 14s ease-in-out infinite alternate;
+  mix-blend-mode:screen;
+}
+.side-waves::after{
+  background:
+    radial-gradient(38% 70% at 115% 50%, rgba(250,250,250,.22), transparent 65%),
+    radial-gradient(24% 60% at 85% 60%, rgba(255,255,255,.10), transparent 70%);
+  animation:drift-right 16s ease-in-out infinite alternate;
+  mix-blend-mode:screen;
+}
+@keyframes drift-left{from{transform:translateX(-12px)}to{transform:translateX(12px)}}
+@keyframes drift-right{from{transform:translateX(10px)}to{transform:translateX(-10px)}}
+
+.sparks{
+  position:fixed; inset:0; z-index:0; pointer-events:none;
+  background:
+    radial-gradient(6px 6px at 12% 22%, rgba(255,255,255,.35), transparent 60%),
+    radial-gradient(5px 5px at 78% 28%, rgba(255,255,255,.28), transparent 60%),
+    radial-gradient(4px 4px at 30% 78%, rgba(255,255,255,.22), transparent 60%),
+    radial-gradient(4px 4px at 62% 66%, rgba(255,255,255,.18), transparent 60%);
+  filter:blur(.5px) contrast(110%);
+  animation:breath 9s ease-in-out infinite alternate;
+}
+@keyframes breath{from{transform:translateY(-6px)}to{transform:translateY(6px)}}
+
+/* glass card */
+.card{
+  position:relative; z-index:1;
+  width:min(420px,94vw);
+  padding:28px 24px 22px;
+  border-radius:18px;
+  background:linear-gradient(180deg, rgba(255,255,255,.06), rgba(255,255,255,.02));
+  border:1px solid rgba(255,255,255,.2);
+  box-shadow:0 20px 60px rgba(0,0,0,.55),0 0 50px rgba(255,255,255,.08);
+  backdrop-filter:blur(14px) saturate(120%);
+  -webkit-backdrop-filter:blur(14px) saturate(120%);
+}
+.card h3{
+  margin:0 0 12px;
+  font:700 26px/1 Orbitron, Inter, sans-serif;
+  letter-spacing:.06em;
+  background:linear-gradient(90deg, #fff, #d9d9d9 45%, #f5f5f5);
+  -webkit-background-clip:text; color:transparent;
+  text-shadow:0 0 14px rgba(255,255,255,.25);
+}
+.hr{height:1px;margin:12px 0 18px;background:linear-gradient(90deg,transparent,rgba(255,255,255,.18),transparent)}
+
+.field{margin-bottom:16px}
+.input{
+  width:100%;padding:14px 16px;font-size:16px;color:#f5f5f5;
+  background:rgba(0,0,0,.25);border:1px solid rgba(255,255,255,.2);
+  border-radius:14px;outline:0;
+}
+.input::placeholder{color:#aaa}
+.row{display:flex;gap:10px;justify-content:flex-end}
+.btn{
+  padding:12px 20px;border-radius:999px;border:0;
+  background:#fff;color:#111;font-weight:700;cursor:pointer;
+}
+.status{margin-top:14px;font-size:18px;min-height:22px;text-align:center}
+.ok{color:#00e676}
+.err{color:#ff5252}
+.lock{color:#ffb74d;font-size:14px;margin-top:10px;text-align:center}
+</style>
+</head>
+<body>
+  <div class="side-waves"></div>
+  <div class="sparks"></div>
+
+  <div class="card">
+    <h3>Admin Login</h3>
+    <div class="hr"></div>
+    <div class="field">
+      <input id="pwd" type="password" class="input" placeholder="Въведи парола">
+    </div>
+    <div class="row">
+      <button class="btn" id="checkBtn">Вход</button>
+    </div>
+    <div class="status" id="status"></div>
+    <div class="lock" id="lockMsg"></div>
+  </div>
+
+<script>
+const CORRECT_PASS = "qkidrehi999";
+const pwd = document.getElementById("pwd");
+const btn = document.getElementById("checkBtn");
+const status = document.getElementById("status");
+const lockMsg = document.getElementById("lockMsg");
+
+let attempts = 0, locked = false, timer;
+
+btn.addEventListener("click", ()=>{
+  if(locked) return;
+  const val = pwd.value.trim();
+  if(val === CORRECT_PASS){
+    status.textContent = "✔ Успешен вход"; status.className = "status ok";
+    attempts = 0;
+  } else {
+    attempts++;
+    status.textContent = "✖ Грешна парола"; status.className = "status err";
+    if(attempts >= 3){ lock(); }
+  }
+});
+
+function lock(){
+  locked = true;
+  let sec = 60;
+  lockMsg.textContent = "Заключено за 60 секунди...";
+  pwd.disabled = true; btn.disabled = true; status.textContent="";
+  timer = setInterval(()=>{
+    sec--;
+    lockMsg.textContent = "Заключено за " + sec + " сек.";
+    if(sec<=0){
+      clearInterval(timer);
+      locked = false; attempts=0;
+      pwd.disabled = false; btn.disabled = false;
+      lockMsg.textContent="";
+    }
+  },1000);
+}
+</script>
+</body>
+</html>
